@@ -5,8 +5,8 @@
 
 FILE * AVAILABLE_TOPICS ;
 FILE * selected_topic ;
+FILE * players ;
 
-int ext ;
 
 //define the structure of nodes
 struct node
@@ -75,14 +75,7 @@ int new_game () //show topics and select one of them //when the player press 1 w
     scanf ( "%d" , & topic_input ) ;
     //
 
-    //and now we go to open and process that topic
-    ext = 0 ;
     open_topic ( topic_input ) ;
-    if ( ext == 2 )
-    {
-        return 2 ;
-    }
-    //
 }
 
 int open_topic ( int a ) //here we open the selected topic
@@ -105,17 +98,22 @@ int open_topic ( int a ) //here we open the selected topic
     case 5 :
         selected_topic = fopen ( "video_games.txt" , "r" ) ;
         break;
+    case 6 :
+        selected_topic = fopen ( "name_of_teacher_assistants.txt" , "r" ) ;
+        break ;
+    case 7 :
+        selected_topic = fopen ( "adobe_products.txt" , "r" ) ;
+        break ;
+    case 8 :
+        selected_topic = fopen ( "animals.txt" , "r" ) ;
+        break ;
+    case 9 :
+        selected_topic = fopen ( "colors.txt" , "r" ) ;
+        break ;
     }
     //
 
-    //here we put each word of the file in a node of a linked list
-    ext = 0 ;
     init_link ( selected_topic ) ;
-    if ( ext == 2 )
-    {
-        return 2 ;
-    }
-    //
 }
 
 int init_link ( FILE * b )  //put each word into a node of linked list
@@ -128,7 +126,7 @@ int init_link ( FILE * b )  //put each word into a node of linked list
     {
         //put each word in a node and create the next node
         fscanf( b , "%s" , current -> word ) ;
-        add_link_node( current ) ;
+        add_link_node ( current ) ;
         current = current -> next ;
         current -> next = NULL ;
         if( feof ( b ) )
@@ -171,14 +169,7 @@ int init_link ( FILE * b )  //put each word into a node of linked list
     }
     printf("\n%d\n",length_link(head));
 
-    //now we go to process the words of the topic
-    ext = 0 ;
     process_topic () ;
-    if ( ext == 2 )
-    {
-        return 2 ;
-    }
-    //
 }
 
 void add_link_node ( struct node * current ) //add a new node at the end of the linked list
@@ -194,19 +185,17 @@ void process_topic()
     {
         random = find_random_word ( length_link ( head ) ) ;         //find a word randomly to start process
         init_word ( random , random_word ) ; //put the word in an array
-        delete_node ( random ) ; //delete that node of word
-        ext = 0 ;
         process_word_begin ( random_word ) ; //process that word to play
-        if ( ext == 2 )
-        {
-            return 2 ;
-        }
+
         //check if the nodes are finished or not
-        if ( length_link == 0 )
+        if ( length_link ( head ) == 1 )
         {
+            free ( head ) ; //delete the last remaining node
             break ;
         }
         //
+
+        delete_node ( random ) ; //delete that node of word
     }
 }
 
@@ -243,10 +232,6 @@ int process_word_begin ( char random_word [] )
         printf ( "Enter your guess: " ) ;
         getchar () ;
         scanf ( "%c", & guessed_char ) ;
-        if ( guessed_char == EOF )
-        {
-            return 2 ;
-        }
         printf ( "So: " ) ;
         error = 0 ;
         for ( o = 0 ; o < word_length ; o++ )
@@ -364,25 +349,37 @@ int length_link ( struct node * head ) //find the length of the linked list
     return j ;
 }
 
-int main ()
+void init_players ()
 {
-    //greeting
-    printf ( "Hello Friend...Hello Friend!\n" ) ;
-    printf ( "This is a Hangman game.\nLet's play.\n\n" ) ;
+    players = fopen ( "players.txt" , "a+" ) ;
 
     //get player's name and welcoming
     printf ( "Enter your name:" ) ;
-    char char_name [ 20 ] ;
-    scanf ( "%s" , char_name ) ;
-    printf ( "\nWelcome %s!\n\n" , char_name ) ;
+    player now ;
+    scanf ( "%s" , now . name ) ;
+    fprintf ( players , "\n%s" , now . name ) ;
+    printf ( "\nWelcome %s!\n\n" , now . name ) ;
     //
 
-    time_t t = time( NULL ) ;
-    srand ( t ) ;
     while ( 1 )
     {
         menu () ;
     }
+
+
+}
+int main ()
+{
+
+    time_t t = time( NULL ) ;
+    srand ( t ) ;
+
+    //greeting
+    printf ( "Hello Friend...Hello Friend!\n" ) ;
+    printf ( "This is a Hangman game.\nLet's play.\n\n" ) ;
+    //
+
+    init_players () ;
 
     return 0 ;
 }
