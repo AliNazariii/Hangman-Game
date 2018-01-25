@@ -8,8 +8,9 @@
 FILE * AVAILABLE_TOPICS ;
 FILE * selected_topic ;
 FILE * players ;
+FILE * graphics ;
 
-
+time_t t ;
 //define the structure of nodes
 struct node
 {
@@ -26,12 +27,14 @@ typedef struct
     int high_score ;
     int sum_score ;
 } player ;
+player now ;
 //
 
-int menu ( player now ) //this is my main menu
+int menu () //this is my main menu
 {
+    system ( "cls" ) ;
     //show the description of menu and get what player wants
-    printf ( "Enter [1] to play a new game\nAnd also enter [2] to resume your previous game:" ) ;
+    printf ( "\nEnter [1] to play a new game\nAnd also enter [2] to resume your previous game\nand you can enter [3] to finish the game:" ) ;
     int char_input ;
     scanf ( "%d", & char_input ) ;
     //
@@ -39,7 +42,7 @@ int menu ( player now ) //this is my main menu
     // if player choose 1, we will start new game with all of the topics and words
     if ( char_input == 1 )
     {
-        new_game ( now ) ;
+        new_game () ;
         return 1 ;
     }
     //
@@ -49,16 +52,25 @@ int menu ( player now ) //this is my main menu
     {
 
     }
+
+    //if player choose 3, we will finish the game
+    if ( char_input == 3 )
+    {
+        return 0 ;
+    }
+    //
+
     else //yeah, this is nothing ha ha
     {
         printf ( "Wrong input!\n" ) ;
-        menu ( now ) ;
+        menu () ;
     }
 }
 
-int new_game ( player now ) //show topics and select one of them //when the player press 1 we will come here
+int new_game () //show topics and select one of them //when the player press 1 we will come here
 {
     AVAILABLE_TOPICS = fopen ( "AVAILABLE_TOPICS.txt" , "r" ) ; //open file of topics
+    system( "cls" ) ;
 
     //put each line in a string and print each topic
     char c [ 500 ] ;
@@ -77,10 +89,11 @@ int new_game ( player now ) //show topics and select one of them //when the play
     scanf ( "%d" , & topic_input ) ;
     //
 
-    open_topic ( topic_input , now ) ;
+    open_topic ( topic_input ) ;
+    fclose ( AVAILABLE_TOPICS ) ;
 }
 
-int open_topic ( int a , player now ) //here we open the selected topic
+int open_topic ( int a ) //here we open the selected topic
 {
     //open the selected file of words
     switch ( a )
@@ -112,13 +125,17 @@ int open_topic ( int a , player now ) //here we open the selected topic
     case 9 :
         selected_topic = fopen ( "colors.txt" , "r" ) ;
         break ;
+    case 10 :
+        selected_topic = fopen ( "test.txt" , "r" ) ;
+        break ;
     }
     //
 
-    init_link ( selected_topic , now ) ;
+    init_link ( selected_topic ) ;
+    fclose ( selected_topic ) ;
 }
 
-int init_link ( FILE * b , player now )  //put each word into a node of linked list
+int init_link ( FILE * b )  //put each word into a node of linked list
 {
     head = ( struct node* )malloc( sizeof ( struct node ) ) ;
     head -> next = NULL;
@@ -171,7 +188,7 @@ int init_link ( FILE * b , player now )  //put each word into a node of linked l
     }
     printf("\n%d\n",length_link(head));
 
-    process_topic ( now ) ;
+    process_topic () ;
 }
 
 void add_link_node ( struct node * current ) //add a new node at the end of the linked list
@@ -179,7 +196,7 @@ void add_link_node ( struct node * current ) //add a new node at the end of the 
     current -> next = ( struct node * ) malloc ( sizeof ( struct node ) ) ;
 }
 
-void process_topic ( player now )
+void process_topic ()
 {
     int random;
     char random_word [ 30 ] ;
@@ -187,7 +204,7 @@ void process_topic ( player now )
     {
         random = find_random_word ( length_link ( head ) ) ;         //find a word randomly to start process
         init_word ( random , random_word ) ; //put the word in an array
-        process_word_begin ( random_word , now ) ; //process that word to play
+        process_word_begin ( random_word ) ; //process that word to play
 
         //check if the nodes are finished or not
         if ( length_link ( head ) == 1 )
@@ -211,20 +228,23 @@ int true_or_false ( char c , char guessed_char ) //to check whether this charact
     return 0 ;
 }
 
-int process_word_begin ( char random_word [] , player now )
+int process_word_begin ( char random_word [] )
 {
     int word_length = strlen( random_word ) ;
-    int p , o , l ;
+    int p , o ;
+    int l = 0 ;
 
     char print_word [ word_length ] ;
     for ( p = 0 ; p < word_length ; p++ )
     {
         print_word [ p ] = '_' ;
     }
-
+    system( "cls" ) ;
     printf( "\nSo the word is like this: " ) ;
     print_words( print_word , word_length ) ;
     printf( "\n\n" ) ;
+    graphic ( l ) ;
+    printf ( "\n" ) ;
 
     char guessed_char;
     int error ;
@@ -232,9 +252,10 @@ int process_word_begin ( char random_word [] , player now )
     guessed = 0 ;
     for ( l = 0 ; l < 5 ; )
     {
-        printf ( "Enter your guess: " ) ;
+        printf ( "\nEnter your guess: " ) ;
         getchar () ;
         scanf ( "%c", & guessed_char ) ;
+        system( "cls" ) ;
         printf ( "So: " ) ;
         error = 0 ;
         for ( o = 0 ; o < word_length ; o++ )
@@ -255,14 +276,30 @@ int process_word_begin ( char random_word [] , player now )
         if ( error == word_length )
         {
             l++ ;
-            if ( l == 5 )
+            switch ( l )
             {
-                printf( "Oh! You could not guess the word! " ) ;
-                printf( "\nThe word was: %s " , random_word ) ;
-                printf( "\nScore of this round is ZERO .\n" ) ;
-
+            case 1 :
+                graphic ( l ) ;
+                break ;
+            case 2 :
+                graphic ( l ) ;
+                break ;
+            case 3 :
+                graphic ( l ) ;
+                break ;
+            case 4 :
+                graphic ( l ) ;
                 break ;
             }
+            if ( l == 5 )
+            {
+                graphic ( l ) ;
+                printf( "\nOh! You could not guess the word! " ) ;
+                printf( "\nThe word was: %s " , random_word ) ;
+                printf( "\nScore of this round is ZERO .\n" ) ;
+                Sleep ( 3000 ) ;
+            }
+            printf ( "\n" ) ;
         }
 
         if ( guessed == word_length )
@@ -273,9 +310,41 @@ int process_word_begin ( char random_word [] , player now )
             printf ( "Score of this round is: %d" , score ) ;
             printf ( "\nSum of your scores until now, is: %d" , now.sum_score ) ;
             printf ( "\n_______________________________________________________\n" ) ;
+            Sleep ( 3000 ) ;
             break ;
         }
     }
+}
+
+void graphic ( int l )
+{
+    switch ( l )
+    {
+    case 0 :
+        graphics = fopen ( "step0.txt" , "r" ) ;
+        break;
+    case 1 :
+        graphics = fopen ( "step1.txt" , "r" ) ;
+        break;
+    case 2 :
+        graphics = fopen ( "step2.txt" , "r" ) ;
+        break;
+    case 3 :
+        graphics = fopen ( "step3.txt" , "r" ) ;
+        break;
+    case 4 :
+        graphics = fopen ( "step4.txt" , "r" ) ;
+        break;
+    case 5 :
+        graphics = fopen ( "step5.txt" , "r" ) ;
+        break ;
+    }
+    char cc [ 500 ] ;
+    while ( fgets ( cc , 500 , graphics ) != NULL )
+    {
+        printf ( "%s" , cc ) ;
+    }
+    fclose ( graphics ) ;
 }
 
 void print_words ( char print_word [] , int word_length ) //print the word , character by character
@@ -359,31 +428,32 @@ int length_link ( struct node * head ) //find the length of the linked list
     return j ;
 }
 
-void init_players ( int t )
+void init_players ()
 {
     players = fopen ( "players.txt" , "a+" ) ;
 
     //get player's name and welcoming
     printf ( "Enter your name:" ) ;
-    player now ;
     scanf ( "%s" , now.name ) ;
     fprintf ( players , "\n%s" , now.name ) ;
     printf ( "\nWelcome %s!\n\n" , now.name ) ;
     //
 
+    int finish = 1 ;
     now.sum_score = 0 ;
-    printf("%d",t);
-    while ( 1 )
+    while ( finish )
     {
-        menu ( now ) ;
+        finish = menu ( now ) ;
     }
 
+    fprintf ( players , "\t%d" , now.sum_score ) ;
+    //fprintf ( players , "\n%d" , now.high_score ) ;
 
 }
 int main ()
 {
 
-    time_t t = time( NULL ) ;
+    t = time( NULL ) ;
     srand ( t ) ;
 
     //greeting
@@ -391,7 +461,7 @@ int main ()
     printf ( "This is a Hangman game.\nLet's play.\n\n" ) ;
     //
 
-    init_players ( t ) ;
+    init_players () ;
 
     return 0 ;
 }
