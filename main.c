@@ -2,6 +2,8 @@
 #include <stdlib.h>
 #include <time.h>
 #include <string.h>
+#include <windows.h>
+#include <unistd.h>
 
 FILE * AVAILABLE_TOPICS ;
 FILE * selected_topic ;
@@ -26,7 +28,7 @@ typedef struct
 } player ;
 //
 
-int menu() //this is my main menu
+int menu ( player now ) //this is my main menu
 {
     //show the description of menu and get what player wants
     printf ( "Enter [1] to play a new game\nAnd also enter [2] to resume your previous game:" ) ;
@@ -37,7 +39,7 @@ int menu() //this is my main menu
     // if player choose 1, we will start new game with all of the topics and words
     if ( char_input == 1 )
     {
-        new_game () ;
+        new_game ( now ) ;
         return 1 ;
     }
     //
@@ -50,11 +52,11 @@ int menu() //this is my main menu
     else //yeah, this is nothing ha ha
     {
         printf ( "Wrong input!\n" ) ;
-        menu () ;
+        menu ( now ) ;
     }
 }
 
-int new_game () //show topics and select one of them //when the player press 1 we will come here
+int new_game ( player now ) //show topics and select one of them //when the player press 1 we will come here
 {
     AVAILABLE_TOPICS = fopen ( "AVAILABLE_TOPICS.txt" , "r" ) ; //open file of topics
 
@@ -75,10 +77,10 @@ int new_game () //show topics and select one of them //when the player press 1 w
     scanf ( "%d" , & topic_input ) ;
     //
 
-    open_topic ( topic_input ) ;
+    open_topic ( topic_input , now ) ;
 }
 
-int open_topic ( int a ) //here we open the selected topic
+int open_topic ( int a , player now ) //here we open the selected topic
 {
     //open the selected file of words
     switch ( a )
@@ -113,10 +115,10 @@ int open_topic ( int a ) //here we open the selected topic
     }
     //
 
-    init_link ( selected_topic ) ;
+    init_link ( selected_topic , now ) ;
 }
 
-int init_link ( FILE * b )  //put each word into a node of linked list
+int init_link ( FILE * b , player now )  //put each word into a node of linked list
 {
     head = ( struct node* )malloc( sizeof ( struct node ) ) ;
     head -> next = NULL;
@@ -169,7 +171,7 @@ int init_link ( FILE * b )  //put each word into a node of linked list
     }
     printf("\n%d\n",length_link(head));
 
-    process_topic () ;
+    process_topic ( now ) ;
 }
 
 void add_link_node ( struct node * current ) //add a new node at the end of the linked list
@@ -177,7 +179,7 @@ void add_link_node ( struct node * current ) //add a new node at the end of the 
     current -> next = ( struct node * ) malloc ( sizeof ( struct node ) ) ;
 }
 
-void process_topic()
+void process_topic ( player now )
 {
     int random;
     char random_word [ 30 ] ;
@@ -185,7 +187,7 @@ void process_topic()
     {
         random = find_random_word ( length_link ( head ) ) ;         //find a word randomly to start process
         init_word ( random , random_word ) ; //put the word in an array
-        process_word_begin ( random_word ) ; //process that word to play
+        process_word_begin ( random_word , now ) ; //process that word to play
 
         //check if the nodes are finished or not
         if ( length_link ( head ) == 1 )
@@ -197,6 +199,7 @@ void process_topic()
 
         delete_node ( random ) ; //delete that node of word
     }
+    printf ( "\nSum of your scores is: %d" , now.sum_score ) ;
 }
 
 int true_or_false ( char c , char guessed_char ) //to check whether this character is in this word or not
@@ -208,7 +211,7 @@ int true_or_false ( char c , char guessed_char ) //to check whether this charact
     return 0 ;
 }
 
-int process_word_begin ( char random_word [] )
+int process_word_begin ( char random_word [] , player now )
 {
     int word_length = strlen( random_word ) ;
     int p , o , l ;
@@ -256,13 +259,20 @@ int process_word_begin ( char random_word [] )
             {
                 printf( "Oh! You could not guess the word! " ) ;
                 printf( "\nThe word was: %s " , random_word ) ;
+                printf( "\nScore of this round is ZERO .\n" ) ;
+
                 break ;
             }
         }
 
         if ( guessed == word_length )
         {
-            printf( "Wow you guessed the word correctly! \n_________________________________________\n" ) ;
+            printf ( "Wow you guessed the word correctly! \n" ) ;
+            int score = ( 3 * ( word_length ) - l ) ;
+            now.sum_score += score ;
+            printf ( "Score of this round is: %d" , score ) ;
+            printf ( "\nSum of your scores until now, is: %d" , now.sum_score ) ;
+            printf ( "\n_______________________________________________________\n" ) ;
             break ;
         }
     }
@@ -349,21 +359,23 @@ int length_link ( struct node * head ) //find the length of the linked list
     return j ;
 }
 
-void init_players ()
+void init_players ( int t )
 {
     players = fopen ( "players.txt" , "a+" ) ;
 
     //get player's name and welcoming
     printf ( "Enter your name:" ) ;
     player now ;
-    scanf ( "%s" , now . name ) ;
-    fprintf ( players , "\n%s" , now . name ) ;
-    printf ( "\nWelcome %s!\n\n" , now . name ) ;
+    scanf ( "%s" , now.name ) ;
+    fprintf ( players , "\n%s" , now.name ) ;
+    printf ( "\nWelcome %s!\n\n" , now.name ) ;
     //
 
+    now.sum_score = 0 ;
+    printf("%d",t);
     while ( 1 )
     {
-        menu () ;
+        menu ( now ) ;
     }
 
 
@@ -379,7 +391,7 @@ int main ()
     printf ( "This is a Hangman game.\nLet's play.\n\n" ) ;
     //
 
-    init_players () ;
+    init_players ( t ) ;
 
     return 0 ;
 }
