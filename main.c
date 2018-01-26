@@ -9,6 +9,7 @@ FILE * AVAILABLE_TOPICS ;
 FILE * selected_topic ;
 FILE * players ;
 FILE * graphics ;
+FILE * greeting ;
 
 time_t t ;
 //define the structure of nodes
@@ -81,20 +82,22 @@ int new_game () //show topics and select one of them //when the player press 1 w
         printf ( "%s\n" , c ) ;
         i++ ;
     }
+    printf ( "\nAnd also you can enter [20] to generate your own topic.\n" ) ;
     //
 
     // here we ask player to choose a topic
     int topic_input ;
-    printf ( "So: " ) ;
+    printf ( "\nSo: " ) ;
     scanf ( "%d" , & topic_input ) ;
     //
-
+    system ( "cls" ) ;
     open_topic ( topic_input ) ;
     fclose ( AVAILABLE_TOPICS ) ;
 }
 
 int open_topic ( int a ) //here we open the selected topic
 {
+    char name_own_topic [ 40 ] ;
     //open the selected file of words
     switch ( a )
     {
@@ -127,6 +130,26 @@ int open_topic ( int a ) //here we open the selected topic
         break ;
     case 10 :
         selected_topic = fopen ( "test.txt" , "r" ) ;
+        break ;
+    case 20 :
+        printf ( "Enter the name of your topic ( in format: name.txt) : " ) ;
+        scanf ( "%s" , name_own_topic ) ;
+        getchar () ;
+        selected_topic = fopen ( name_own_topic , "w" ) ;
+        printf ( "How many words you want to have in your topic? " ) ;
+        int number_generated ;
+        scanf ( "%d" , & number_generated ) ;
+        int jj ;
+        for ( jj = 0 ; jj < number_generated ; jj++ )
+        {
+            char generated_word [ 30 ] ;
+            printf ( "Enter youe word: " ) ;
+            scanf ( "%s" , generated_word ) ;
+            getchar () ;
+            fprintf ( selected_topic , "%s " , generated_word ) ;
+        }
+        fclose ( selected_topic ) ;
+        selected_topic = fopen ( name_own_topic , "r" ) ;
         break ;
     }
     //
@@ -216,7 +239,8 @@ void process_topic ()
 
         delete_node ( random ) ; //delete that node of word
     }
-    printf ( "\nSum of your scores is: %d" , now.sum_score ) ;
+    printf ( "Sum of your scores in this topic is: %d" , now.sum_score ) ;
+    Sleep ( 1500 ) ;
 }
 
 int true_or_false ( char c , char guessed_char ) //to check whether this character is in this word or not
@@ -252,11 +276,19 @@ int process_word_begin ( char random_word [] )
     guessed = 0 ;
     for ( l = 0 ; l < 5 ; )
     {
-        printf ( "\nEnter your guess: " ) ;
+        printf ( "Enter your guess \n( Notice: enter [Q] to skip a word ) : " ) ;
         getchar () ;
         scanf ( "%c", & guessed_char ) ;
+        if ( guessed_char == 'P' )
+        {
+
+            exit ( -1 ) ;
+        }
+        if ( guessed_char == 'Q' )
+        {
+            break ;
+        }
         system( "cls" ) ;
-        printf ( "So: " ) ;
         error = 0 ;
         for ( o = 0 ; o < word_length ; o++ )
         {
@@ -270,11 +302,10 @@ int process_word_begin ( char random_word [] )
                 error++ ;
             }
         }
-        print_words( print_word , word_length ) ;
-        printf( "\n\n" ) ;
 
         if ( error == word_length )
         {
+            printf ( "Wrong!\n" ) ;
             l++ ;
             switch ( l )
             {
@@ -301,14 +332,22 @@ int process_word_begin ( char random_word [] )
             }
             printf ( "\n" ) ;
         }
+        else
+        {
+            printf ( "Correct!\n" ) ;
+        }
+
+        printf ( "\nSo: " ) ;
+        print_words( print_word , word_length ) ;
+        printf( "\n" ) ;
 
         if ( guessed == word_length )
         {
-            printf ( "Wow you guessed the word correctly! \n" ) ;
+            printf ( "\nWow you guessed the word correctly! \n\n" ) ;
             int score = ( 3 * ( word_length ) - l ) ;
             now.sum_score += score ;
             printf ( "Score of this round is: %d" , score ) ;
-            printf ( "\nSum of your scores until now, is: %d" , now.sum_score ) ;
+            printf ( "\n\nSum of your scores until now, is: %d" , now.sum_score ) ;
             printf ( "\n_______________________________________________________\n" ) ;
             Sleep ( 3000 ) ;
             break ;
@@ -433,10 +472,11 @@ void init_players ()
     players = fopen ( "players.txt" , "a+" ) ;
 
     //get player's name and welcoming
-    printf ( "Enter your name:" ) ;
+    printf ( "\t\tEnter your name:" ) ;
     scanf ( "%s" , now.name ) ;
     fprintf ( players , "\n%s" , now.name ) ;
-    printf ( "\nWelcome %s!\n\n" , now.name ) ;
+    printf ( "\n\t\tWelcome %s!\n\n" , now.name ) ;
+    Sleep ( 1000 ) ;
     //
 
     int finish = 1 ;
@@ -456,10 +496,12 @@ int main ()
     t = time( NULL ) ;
     srand ( t ) ;
 
-    //greeting
-    printf ( "Hello Friend...Hello Friend!\n" ) ;
-    printf ( "This is a Hangman game.\nLet's play.\n\n" ) ;
-    //
+    greeting = fopen ( "greeting.txt" , "r" ) ;
+    char ccc [ 500 ] ;
+    while ( fgets ( ccc , 500 , greeting ) != NULL )
+    {
+        printf ( "%s" , ccc ) ;
+    }
 
     init_players () ;
 
