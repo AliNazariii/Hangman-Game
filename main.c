@@ -33,6 +33,40 @@ typedef struct
 player now ;
 //
 
+int menu () ; //this is my main menu
+int new_game () ; //show topics and select one of them //when the player press 1 we will come here
+int open_topic ( int a ) ; //here we open the selected topic
+int init_link ( FILE * b ) ;  //put each word into a node of linked list
+void add_link_node ( struct node * current ) ; //add a new node at the end of the linked list
+void process_topic () ;
+int true_or_false ( char c , char guessed_char ) ; //to check whether this character is in this word or not
+int process_word_begin ( char random_word [] ) ;
+void graphic ( int l ) ; // print the process of going the person down the water
+void print_words ( char print_word [] , int word_length ) ; //print the word , character by character
+void init_word ( int random , char random_word [] ) ; //go to the node and copy the word to an array to process
+void delete_node ( int random ) ;  // delete the node that we have played with it
+int find_random_word ( int length_link ) ;//find a random number to select that node of words
+int length_link ( struct node * head ) ; //find the length of the linked list
+void init_players () ;  //get the name of the player and welcoming
+
+int main ()
+{
+
+    t = time( NULL ) ;
+    srand ( t ) ;
+
+    greeting = fopen ( "greeting.txt" , "r" ) ;
+    char ccc [ 500 ] ;
+    while ( fgets ( ccc , 500 , greeting ) != NULL )
+    {
+        printf ( "%s" , ccc ) ;
+    }
+
+    init_players () ;
+
+    return 0 ;
+}
+
 int menu () //this is my main menu
 {
     system ( "cls" ) ;
@@ -377,7 +411,7 @@ int process_word_begin ( char random_word [] )
     }
 }
 
-void graphic ( int l )
+void graphic ( int l ) // print the process of going the person down the water
 {
     switch ( l )
     {
@@ -489,7 +523,7 @@ int length_link ( struct node * head ) //find the length of the linked list
     return j ;
 }
 
-void init_players ()
+void init_players ()  //get the name of the player and welcoming
 {
     players = fopen ( "players.txt" , "a+" ) ;
 
@@ -511,21 +545,4 @@ void init_players ()
     fprintf ( players , "\t%d" , now.sum_score ) ;
     //fprintf ( players , "\n%d" , now.high_score ) ;
 
-}
-int main ()
-{
-
-    t = time( NULL ) ;
-    srand ( t ) ;
-
-    greeting = fopen ( "greeting.txt" , "r" ) ;
-    char ccc [ 500 ] ;
-    while ( fgets ( ccc , 500 , greeting ) != NULL )
-    {
-        printf ( "%s" , ccc ) ;
-    }
-
-    init_players () ;
-
-    return 0 ;
 }
