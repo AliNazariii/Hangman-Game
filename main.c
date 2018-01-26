@@ -10,6 +10,8 @@ FILE * selected_topic ;
 FILE * players ;
 FILE * graphics ;
 FILE * greeting ;
+FILE * correct ;
+FILE * wrong ;
 
 time_t t ;
 //define the structure of nodes
@@ -98,6 +100,9 @@ int new_game () //show topics and select one of them //when the player press 1 w
 int open_topic ( int a ) //here we open the selected topic
 {
     char name_own_topic [ 40 ] ;
+    int number_generated ;
+    char generated_word [ 30 ] ;
+
     //open the selected file of words
     switch ( a )
     {
@@ -135,14 +140,12 @@ int open_topic ( int a ) //here we open the selected topic
         printf ( "Enter the name of your topic ( in format: name.txt) : " ) ;
         scanf ( "%s" , name_own_topic ) ;
         getchar () ;
-        selected_topic = fopen ( name_own_topic , "w" ) ;
+        selected_topic = fopen ( name_own_topic , "a" ) ;
         printf ( "How many words you want to have in your topic? " ) ;
-        int number_generated ;
         scanf ( "%d" , & number_generated ) ;
         int jj ;
         for ( jj = 0 ; jj < number_generated ; jj++ )
         {
-            char generated_word [ 30 ] ;
             printf ( "Enter youe word: " ) ;
             scanf ( "%s" , generated_word ) ;
             getchar () ;
@@ -276,7 +279,7 @@ int process_word_begin ( char random_word [] )
     guessed = 0 ;
     for ( l = 0 ; l < 5 ; )
     {
-        printf ( "Enter your guess \n( Notice: enter [Q] to skip a word ) : " ) ;
+        printf ( "Enter your guess \n( Notice: enter [Q] to skip a word and [P] to exit the game ) : " ) ;
         getchar () ;
         scanf ( "%c", & guessed_char ) ;
         if ( guessed_char == 'P' )
@@ -305,25 +308,37 @@ int process_word_begin ( char random_word [] )
 
         if ( error == word_length )
         {
-            printf ( "Wrong!\n" ) ;
+            wrong = fopen ( "no.txt" , "r" ) ;
+            char ccccc [ 500 ] ;
+            while ( fgets ( ccccc , 500 , wrong ) != NULL )
+            {
+                printf ( "%s" , ccccc ) ;
+            }
+            fclose ( wrong ) ;
+            Sleep ( 1000 ) ;
             l++ ;
             switch ( l )
             {
             case 1 :
+                printf ( "  (4/5) \n" ) ;
                 graphic ( l ) ;
                 break ;
             case 2 :
+                printf ( "  (3/5) \n" ) ;
                 graphic ( l ) ;
                 break ;
             case 3 :
+                printf ( "  (2/5) \n" ) ;
                 graphic ( l ) ;
                 break ;
             case 4 :
+                printf ( "  (1/5) \n" ) ;
                 graphic ( l ) ;
                 break ;
             }
             if ( l == 5 )
             {
+                printf ( "  (0/5) \n" ) ;
                 graphic ( l ) ;
                 printf( "\nOh! You could not guess the word! " ) ;
                 printf( "\nThe word was: %s " , random_word ) ;
@@ -334,7 +349,14 @@ int process_word_begin ( char random_word [] )
         }
         else
         {
-            printf ( "Correct!\n" ) ;
+            correct = fopen ( "yes.txt" , "r" ) ;
+            char cccc [ 500 ] ;
+            while ( fgets ( cccc , 500 , correct ) != NULL )
+            {
+                printf ( "%s" , cccc ) ;
+            }
+            fclose ( correct ) ;
+            Sleep ( 1000 ) ;
         }
 
         printf ( "\nSo: " ) ;
